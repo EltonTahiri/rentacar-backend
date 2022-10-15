@@ -42,6 +42,43 @@ const createNewCar = asyncHandler(async (req, res) => {
         res.status(400).json({ message: 'Invalid car data received' })
     }
 })
+// @desc Update user
+// @route Patch /users
+// @access Private
+const updateCar = asyncHandler(async(req, res) => {
+    const { id, name, manufacturer, engine, consumption, seats, licensePlate } = req.body
+
+    if(!id || !name || !manufacturer || !engine || !consumption || !seats || !licensePlate ){
+        return res.status(400).json({ message : 'All fields are required!'})
+    }
+
+    const car = await Car.findById(id).exec()
+
+
+    if(!car) {
+        return res.status(400).json({ message: 'Car not found'})
+    }
+
+    //Check for duplicate
+    const duplicate = await Car.findOne({ licensePlate }).lean().exec()
+
+    //All updates to the original car
+    if(duplicate && duplicate?._id.toString() !== id){
+        return res.status(409).json({ message: 'Duplicate license plate'})
+    }
+
+    car.name = name
+    car.manufacturer = manufacturer
+    car.engine = engine
+    car.consumption = consumption
+    car.seats = seats
+    car.licensePlate = licensePlate
+
+
+    const updatedCar = await car.save()
+
+    res.json({ message: `Car with ${updatedCar.licensePlate} plate has been updated` })
+})
 
 // @desc Delete car
 // @route Delete /cars
@@ -70,5 +107,6 @@ const deleteCar = asyncHandler(async (req, res) => {
 module.exports ={
     getAllCars,
     createNewCar,
+    updateCar,
     deleteCar
 }
