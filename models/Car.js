@@ -14,7 +14,7 @@ const carSchema = new mongoose.Schema({
         required: true,
     },
     consumption: {
-        type: Number,
+        type: String,
         required: true,
     },
     seats: {
